@@ -17,7 +17,7 @@ def mlflow_input():
     mlflow.set_tracking_uri(DAGSHUB_MLFLOW_URI)
     os.environ["MLFLOW_TRACKING_USERNAME"] = "21t1020892"
     os.environ["MLFLOW_TRACKING_PASSWORD"] = "xN8@Q7V@Pbr6CYZ"
-    mlflow.set_experiment("MNIST_Clustering")
+    mlflow.set_experiment("PCA & t-SNE")
     st.session_state['mlflow_url'] = DAGSHUB_MLFLOW_URI
 
 # Hàm tải dữ liệu MNIST từ OpenML
