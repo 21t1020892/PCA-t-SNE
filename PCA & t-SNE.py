@@ -363,7 +363,6 @@ def show_experiment_selector():
     selected_experiment = next((exp for exp in experiments if exp.name == experiment_name), None)
 
     if not selected_experiment:
-        st.error(f"❌ Không tìm thấy Experiment '{experiment_name}'!", icon="🚫")
         return
 
     st.subheader(f"📌 Experiment: {experiment_name}")
