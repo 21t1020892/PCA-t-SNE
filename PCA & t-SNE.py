@@ -13,7 +13,7 @@ from mlflow.tracking import MlflowClient
 
 # Hàm kết nối MLflow
 def mlflow_input():
-    DAGSHUB_MLFLOW_URI = "https://dagshub.com/21t1020892/Clustering-Algorithms.mlflow"
+    DAGSHUB_MLFLOW_URI = "https://dagshub.com/21t1020892/PCA-t-SNE.mlflow"
     mlflow.set_tracking_uri(DAGSHUB_MLFLOW_URI)
     os.environ["MLFLOW_TRACKING_USERNAME"] = "21t1020892"
     os.environ["MLFLOW_TRACKING_PASSWORD"] = "xN8@Q7V@Pbr6CYZ"
@@ -101,7 +101,7 @@ def explain_pca():
 
     st.markdown("### 🔹 **Các bước thực hiện PCA**")
     st.markdown("""
-    1. **Chuẩn hóa dữ liệu (trừ trung bình)**  
+    1. **Chuẩn hóa dữ liệu **  
        - Tính trung bình của từng chiều:  
          $$ \\mu = \\frac{1}{n} \\sum_{i=1}^{n} x_i $$  
        - Dịch chuyển dữ liệu về gốc tọa độ:  
@@ -304,7 +304,7 @@ def dimensionality_reduction():
                     progress_bar.progress(0.3)
 
                     # Giai đoạn 2: Fit và transform dữ liệu
-                    status_text.text("Đang giảm chiều dữ liệu với t-SNE (có thể lâu hơn PCA)...")
+                    status_text.text("Đang giảm chiều dữ liệu với t-SNE...")
                     X_reduced = reducer.fit_transform(X_subset)
                     progress_bar.progress(0.7)
                     #kl_divergence là một thước đo sự khác biệt giữa hai phân phối xác suất, được sử dụng trong t-SNE để tối ưu hóa việc giảm chiều
@@ -358,7 +358,7 @@ def show_experiment_selector():
         st.warning("⚠️ URL MLflow chưa được khởi tạo!")
 
     mlflow_input()
-    experiment_name = "MNIST_PCA_t_SNE"
+    experiment_name = "PCA-t-SNE"
     experiments = mlflow.search_experiments()
     selected_experiment = next((exp for exp in experiments if exp.name == experiment_name), None)
 
