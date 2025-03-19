@@ -83,68 +83,38 @@ def explain_pca():
     Hãy tưởng tượng bạn có dữ liệu 2D với các điểm nằm rải rác nhưng chủ yếu phân bố theo một hướng chéo. PCA sẽ tìm hướng chính mà dữ liệu biến thiên mạnh nhất và biến đổi dữ liệu sang hệ tọa độ mới dựa trên hướng đó.
     """)
 
-    np.random.seed(42)
-    x = np.random.rand(100) * 10
-    y = x * 0.8 + np.random.randn(100) * 2
-    X = np.column_stack((x, y))
+    st.markdown("## 🔹 **Các bước thực hiện PCA**")
 
-    fig, ax = plt.subplots()
-    ax.scatter(X[:, 0], X[:, 1], color="blue", alpha=0.5, label="Dữ liệu ban đầu")
-    ax.set_xlabel("X1")
-    ax.set_ylabel("X2")
-    ax.legend()
-    st.pyplot(fig)
+    with st.expander("1️⃣ Tính vector kỳ vọng của toàn bộ dữ liệu"):
+        st.latex(r"\bar{x} = \frac{1}{N} \sum_{n=1}^{N} x_n")
+        st.write("Vector kỳ vọng giúp xác định trung tâm của dữ liệu.")
 
-    st.markdown("""
-    **Hình trên**: Dữ liệu phân bố chủ yếu theo hướng chéo. PCA sẽ tìm ra hướng này để giảm chiều từ 2D xuống 1D.
-    """)
+    with st.expander("2️⃣ Chuẩn hóa dữ liệu bằng cách trừ kỳ vọng"):
+        st.latex(r"\hat{x}_n = x_n - \bar{x}")
+        st.write("Dịch chuyển dữ liệu về gốc tọa độ giúp PCA hoạt động chính xác hơn.")
 
-    st.markdown("### 🔹 **Các bước thực hiện PCA**")
-    st.markdown("""
-    1. **Chuẩn hóa dữ liệu **  
-       - Tính trung bình của từng chiều:  
-         $$ \\mu = \\frac{1}{n} \\sum_{i=1}^{n} x_i $$  
-       - Dịch chuyển dữ liệu về gốc tọa độ:  
-         $$ X_{\\text{norm}} = X - \\mu $$  
-       - **Mục đích**: Đảm bảo trung tâm dữ liệu nằm tại $(0, 0)$, giúp phân tích không bị lệch.
+    with st.expander("3️⃣ Tính ma trận hiệp phương sai"):
+        st.latex(r"S = \frac{1}{N} \hat{X} \hat{X}^T")
+        st.write("Ma trận này mô tả mối quan hệ giữa các chiều dữ liệu.")
 
-    2. **Tính ma trận hiệp phương sai**  
-       - Công thức:  
-         $$ C = \\frac{1}{n-1} X_{\\text{norm}}^T X_{\\text{norm}} $$  
-       - **Ý nghĩa**:  
-         - $C_{ii}$ (đường chéo): Phương sai của chiều $i$.  
-         - $C_{ij}$ (ngoài đường chéo): Hiệp phương sai giữa chiều $i$ và $j$, đo mức độ tương quan.
+    with st.expander("4️⃣ Tính trị riêng và vector riêng"):
+        st.write("Giải phương trình trị riêng:")
+        st.latex(r"S v = \lambda v")
+        st.write("- **Trị riêng** (\\( \lambda \\)): Mức độ biến thiên theo hướng của vector riêng.")
+        st.write("- **Vector riêng** (\\( v \\)): Hướng quan trọng trong không gian dữ liệu.")
 
-    3. **Tìm trị riêng và vector riêng**  
-       - Giải phương trình:  
-         $$ C v = \\lambda v $$  
-       - Trong đó:  
-         - $\\lambda$: Trị riêng, biểu thị độ lớn phương sai theo hướng tương ứng.  
-         - $v$: Vector riêng, biểu thị hướng của thành phần chính.
+    with st.expander("5️⃣ Chọn thành phần chính và tạo không gian con"):
+        st.write("Sắp xếp trị riêng theo thứ tự giảm dần và chọn \\( K \\) vector lớn nhất:")
+        st.latex(r"U_K = [v_1, v_2, ..., v_K]")
+        st.write("Các vector này tạo thành hệ trực giao để giảm chiều dữ liệu.")
 
-    4. **Chọn thành phần chính**  
-       - Sắp xếp các trị riêng từ lớn đến nhỏ, chọn $k$ trị riêng lớn nhất và vector riêng tương ứng để tạo ma trận $U_k$:  
-         $$ U_k = [v_1, v_2, ..., v_k] $$
+    with st.expander("6️⃣ Chiếu dữ liệu lên không gian mới"):
+        st.latex(r"Z = U_K^T \hat{X}")
+        st.write("Dữ liệu mới chính là tọa độ trong không gian mới.")
 
-    5. **Chiếu dữ liệu lên không gian mới**  
-       - Công thức:  
-         $$ X_{\\text{new}} = X_{\\text{norm}} U_k $$  
-       - Kết quả là dữ liệu mới với số chiều giảm xuống $k$.
-    """)
-
-    X_centered = X - np.mean(X, axis=0)
-    cov_matrix = np.cov(X_centered.T)
-    eigenvalues, eigenvectors = np.linalg.eig(cov_matrix)
-    fig, ax = plt.subplots()
-    ax.scatter(X[:, 0], X[:, 1], color="blue", alpha=0.5, label="Dữ liệu ban đầu")
-    origin = np.mean(X, axis=0)
-    for i in range(2):
-        ax.arrow(origin[0], origin[1], eigenvectors[0, i] * 3, eigenvectors[1, i] * 3,
-                 head_width=0.3, head_length=0.3, color="red", label=f"Trục {i+1}")
-    ax.set_xlabel("X1")
-    ax.set_ylabel("X2")
-    ax.legend()
-    st.pyplot(fig)
+    with st.expander("7️⃣ Xấp xỉ lại dữ liệu ban đầu (tùy chọn)"):
+        st.latex(r"x \approx U_K Z + \bar{x}")
+        st.write("Có thể tái tạo dữ liệu ban đầu gần đúng từ không gian giảm chiều.")
 
     st.markdown("""
     **Hình trên**: Các mũi tên đỏ là các trục chính mà PCA tìm ra. Trục dài hơn (Trục 1) là hướng có phương sai lớn nhất.
@@ -184,60 +154,52 @@ def explain_tsne():
       - **Trong code này**: Bạn chọn từ 1 đến 3 để hiển thị dữ liệu dưới dạng 1D, 2D, hoặc 3D.
     """)
 
-    st.markdown("### 🔹 **t-SNE hoạt động như thế nào?**")
-    st.markdown("""
-    t-SNE không tìm các hướng tuyến tính như PCA, mà cố gắng giữ các điểm gần nhau trong không gian gốc cũng gần nhau trong không gian mới. Nó làm điều này bằng cách so sánh và tối ưu hóa phân phối xác suất giữa hai không gian.
-    """)
+    st.markdown("## 🔹 **Các bước hoạt động của t-SNE**")
 
-    np.random.seed(42)
-    cluster1 = np.random.randn(50, 2) + np.array([2, 2])
-    cluster2 = np.random.randn(50, 2) + np.array([-2, -2])
-    X = np.vstack((cluster1, cluster2))
+    with st.expander("1️⃣ Tính phân phối xác suất trong không gian cao chiều"):
+        st.write("Xác suất tương đồng giữa hai điểm dữ liệu \\( x_i \\) và \\( x_j \\) được tính bằng:")
+        st.latex(r"P_{j|i} = \frac{\exp(- \| x_i - x_j \|^2 / 2\sigma_i^2)}{\sum_{k \neq i} \exp(- \| x_i - x_k \|^2 / 2\sigma_i^2)}")
+        st.write("- **\\( \sigma_i \\)**: Độ rộng của phân phối Gaussian tại điểm \\( x_i \\).")
+        st.write("- **Mục tiêu**: Định nghĩa xác suất gần gũi giữa các điểm.")
 
-    fig, ax = plt.subplots()
-    ax.scatter(X[:, 0], X[:, 1], c=['blue']*50 + ['orange']*50, alpha=0.5, label="Dữ liệu ban đầu")
-    ax.set_xlabel("X1")
-    ax.set_ylabel("X2")
-    ax.legend(["Cụm 1", "Cụm 2"])
-    st.pyplot(fig)
+    with st.expander("2️⃣ Xây dựng phân phối đối xứng"):
+        st.latex(r"P_{ij} = \frac{P_{j|i} + P_{i|j}}{2N}")
+        st.write("Phân phối \\( P_{ij} \\) mô tả mối quan hệ tương đồng giữa các điểm dữ liệu trong không gian gốc.")
 
-    st.markdown("""
-    **Hình trên**: Dữ liệu 2D với hai cụm. t-SNE sẽ cố gắng giữ hai cụm này tách biệt khi giảm chiều.
-    """)
+    with st.expander("3️⃣ Xây dựng phân phối trong không gian giảm chiều"):
+        st.write("Dùng phân phối **t-Student** với một bậc tự do để tính xác suất \\( Q_{ij} \\) trong không gian mới:")
+        st.latex(r"Q_{ij} = \frac{(1 + \| y_i - y_j \|^2)^{-1}}{\sum_{k \neq l} (1 + \| y_k - y_l \|^2)^{-1}}")
+        st.write("- **Lý do chọn t-Student**: Phân phối có đuôi dài, giúp giữ lại cấu trúc cục bộ.")
 
-    st.markdown("### 🔹 **Các bước thực hiện t-SNE**")
-    st.markdown("""
-    1. **Tính xác suất tương đồng trong không gian gốc**  
-       - Với mỗi cặp điểm $x_i$ và $x_j$, tính xác suất $p_{j|i}$ rằng $x_j$ là hàng xóm của $x_i$:  
-         $$ p_{j|i} = \\frac{\\exp(-\\| x_i - x_j \\|^2 / 2\\sigma^2)}{\\sum_{k \\neq i} \\exp(-\\| x_i - x_k \\|^2 / 2\\sigma^2)} $$  
-       - $\\sigma$: Độ rộng của phân phối Gaussian, phụ thuộc vào số lượng hàng xóm được xem xét.  
-       - **Ý nghĩa**: Các điểm gần nhau có xác suất lớn hơn.
+    with st.expander("4️⃣ Tính hàm mất mát Kullback-Leibler (KL) Divergence"):
+        st.write("Hàm mất mát đo sự khác biệt giữa hai phân phối:")
+        st.latex(r"C = \sum_{i} \sum_{j} P_{ij} \log \frac{P_{ij}}{Q_{ij}}")
+        st.write("**Mục tiêu**: Làm cho \\( Q_{ij} \\) gần với \\( P_{ij} \\) nhất có thể.")
 
-    2. **Tính xác suất trong không gian mới**  
-       - Trong không gian giảm chiều, dùng phân phối t-Student để tính $q_{j|i}$:  
-         $$ q_{j|i} = \\frac{(1 + \\| y_i - y_j \\|^2)^{-1}}{\\sum_{k \\neq i} (1 + \\| y_i - y_k \\|^2)^{-1}} $$  
-       - **Ý nghĩa**: Phân phối t-Student có đuôi dài, giúp phân bố các điểm xa nhau hợp lý hơn.
+    with st.expander("5️⃣ Tối ưu hóa bằng Gradient Descent"):
+        st.write("Cập nhật tọa độ \\( y_i \\) để giảm hàm mất mát:")
+        st.latex(r"y_i^{(t+1)} = y_i^{(t)} + \eta \frac{\partial C}{\partial y_i}")
+        st.write("- **\\( \eta \\)**: Tốc độ học (learning rate).")
+        st.write("- **Sử dụng kỹ thuật Momentum để tăng tốc hội tụ.**")
 
-    3. **Tối ưu hóa sự khác biệt**  
-       - Đo sự khác biệt giữa $P$ và $Q$ bằng **KL-divergence**:  
-         $$ KL(P||Q) = \\sum_{i \\neq j} p_{ij} \\log \\frac{p_{ij}}{q_{ij}} $$  
-       - Dùng gradient descent để điều chỉnh tọa độ $y_i$ sao cho $KL$ nhỏ nhất.
-    """)
+    with st.expander("6️⃣ Hoàn thành và trực quan hóa"):
+        st.write("- Sau một số vòng lặp, dữ liệu sẽ được ánh xạ sang không gian 2D hoặc 3D.")
+        st.write("- Các điểm dữ liệu gần nhau trong không gian cao chiều sẽ vẫn gần nhau sau khi giảm chiều.")
 
-    st.markdown("### ✅ **Ưu điểm của t-SNE**")
-    st.markdown("""
-    - Tạo các cụm dữ liệu rõ ràng, dễ nhìn trong không gian 2D/3D.
-    - Phù hợp với dữ liệu phi tuyến tính (PCA không làm được).
-    - Rất tốt để trực quan hóa dữ liệu phức tạp như MNIST.
-    """)
+        st.markdown("### ✅ **Ưu điểm của t-SNE**")
+        st.markdown("""
+        - Tạo các cụm dữ liệu rõ ràng, dễ nhìn trong không gian 2D/3D.
+        - Phù hợp với dữ liệu phi tuyến tính (PCA không làm được).
+        - Rất tốt để trực quan hóa dữ liệu phức tạp như MNIST.
+        """)
 
-    st.markdown("### ❌ **Nhược điểm của t-SNE**")
-    st.markdown("""
-    - Tốn nhiều thời gian tính toán, đặc biệt với dữ liệu lớn.
-    - Nhạy cảm với cách thiết lập ban đầu (cần chọn cẩn thận).
-    - Không bảo toàn cấu trúc toàn cục, chỉ tập trung vào cục bộ.
-    - Không phù hợp để giảm chiều cho học máy (chỉ dùng để trực quan hóa).
-    """)
+        st.markdown("### ❌ **Nhược điểm của t-SNE**")
+        st.markdown("""
+        - Tốn nhiều thời gian tính toán, đặc biệt với dữ liệu lớn.
+        - Nhạy cảm với cách thiết lập ban đầu (cần chọn cẩn thận).
+        - Không bảo toàn cấu trúc toàn cục, chỉ tập trung vào cục bộ.
+        - Không phù hợp để giảm chiều cho học máy (chỉ dùng để trực quan hóa).
+        """)
 
 # Hàm thực hiện giảm chiều và trực quan hóa
 def dimensionality_reduction():
